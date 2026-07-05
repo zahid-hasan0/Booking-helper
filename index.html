@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookingFlow — Colorful Material App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+    <!-- ═══════════════════════════════════════════════════
+         APPLE-STYLE FLOATING NAVIGATION
+         ═══════════════════════════════════════════════════ -->
+    <div class="nav-container">
+        <header class="floating-nav">
+            <div class="header-left">
+                <!-- <div class="header-logo-icon">B</div> -->
+                <div class="header-title">Booking Helper</div>
+            </div>
+
+            <nav class="header-nav">
+                <button class="nav-item active" data-tab="dashboard-section">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6zM14 6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2V6zM4 16a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2zM14 16a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-2z"/></svg>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-item" data-tab="library-section">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2m14 0V9a2 2 0 0 0-2-2M5 11V9a2 2 0 0 1 2-2m0 0V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2M7 7h10"/></svg>
+                    <span>Buyer Library</span>
+                </button>
+            </nav>
+
+            <div class="header-right">
+                <!-- THEME TOGGLE -->
+                <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle Theme">
+                    <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="5"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                    <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="display:none;"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                    <span id="theme-label">Dark</span>
+                </button>
+                <div class="avatar-circle" style="font-size: large;">💡</div>
+            </div>
+        </header>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+         MAIN CONTENT AREA
+         ═══════════════════════════════════════════════════ -->
+    <main class="main-content">
+        
+        <header class="page-header">
+            <div>
+                <h1 id="page-title-text">Dashboard</h1>
+                <!-- <p id="page-subtitle-text">Process and auto-map your booking spreadsheets.</p> -->
+            </div>
+        </header>
+
+        <!-- ════════════════════════════════════════════════
+             SECTION: DASHBOARD
+             ════════════════════════════════════════════════ -->
+        <section class="tab-content active" id="dashboard-section">
+            
+            <!-- GLASS METRIC TILES -->
+            <div class="metric-grid">
+                <div class="metric-card tile-violet">
+                    <div class="metric-icon-bubble">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2z"/></svg>
+                    </div>
+                    <div class="metric-info">
+                        <span class="metric-label">Total Records</span>
+                        <span class="metric-value" id="stat-total-bookings">0</span>
+                    </div>
+                </div>
+
+                <div class="metric-card tile-pink">
+                    <div class="metric-icon-bubble">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                    </div>
+                    <div class="metric-info">
+                        <span class="metric-label">Mapped</span>
+                        <span class="metric-value" id="stat-mapped-bookings">0</span>
+                    </div>
+                </div>
+
+                <div class="metric-card tile-amber">
+                    <div class="metric-icon-bubble">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    </div>
+                    <div class="metric-info">
+                        <span class="metric-label">Unmapped</span>
+                        <span class="metric-value" id="stat-unmapped-bookings">0</span>
+                    </div>
+                </div>
+
+                <div class="metric-card tile-cyan">
+                    <div class="metric-icon-bubble">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 0 0-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 0 1 5.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 0 1 9.288 0M15 7a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm6 3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM7 10a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/></svg>
+                    </div>
+                    <div class="metric-info">
+                        <span class="metric-label">Library Buyers</span>
+                        <span class="metric-value" id="stat-total-buyers">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DRAG & DROP UPLOAD PANEL -->
+            <div class="content-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <div class="panel-title-dot"></div>
+                        Import Spreadsheets
+                    </div>
+                    <div>
+                        <button class="btn btn-outline" id="btn-download-template">Download Template</button>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="drag-zone" id="drop-zone">
+                        <input type="file" id="excel-file-input" accept=".xlsx,.xls,.csv" hidden>
+                        <div class="drag-icon-wrapper">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 0 1-.88-7.903A5 5 0 1 1 15.9 6L16 6a5 5 0 0 1 1 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                        </div>
+                        <h3>Click to upload or drag & drop</h3>
+                        <p>Supports .xlsx, .xls, .csv files</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DATA TABLE PANEL -->
+            <div class="content-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <div class="panel-title-dot"></div>
+                        Booking Database
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-primary" id="btn-add-booking">+ Add Row</button>
+                        <button class="btn btn-danger hidden" id="btn-clear-bookings">Clear Data</button>
+                    </div>
+                </div>
+                
+                <div class="panel-body" style="padding-top: 24px;">
+                    <!-- Toolbar -->
+                    <div class="toolbar">
+                        <div class="toolbar-left">
+                            <div class="search-wrap">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                                <input type="text" class="input-pill" id="booking-search-input" placeholder="Search data...">
+                            </div>
+                            <select class="input-pill" id="buyer-filter-select">
+                                <option value="all">All Buyers</option>
+                            </select>
+                            <select class="input-pill" id="status-filter-select">
+                                <option value="all">All Statuses</option>
+                                <option value="mapped">Mapped</option>
+                                <option value="unmapped">Unmapped</option>
+                                <option value="missing">Missing</option>
+                            </select>
+                        </div>
+                        <div class="toolbar-right">
+                            <button class="btn btn-outline" id="btn-copy-table">Copy</button>
+                            <button class="btn btn-outline" id="btn-export-excel">Export Excel</button>
+                        </div>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="table-wrapper">
+                        <table class="playful-table" id="bookings-data-table">
+                            <thead>
+                                <tr>
+                                    <th class="sortable" data-sort="index">S/N</th>
+                                    <th class="sortable" data-sort="bookingNo">Booking No</th>
+                                    <th class="sortable" data-sort="shortName">Code</th>
+                                    <th>Buyer Name</th>
+                                    <th class="sortable" data-sort="status">Status</th>
+                                    <th style="text-align: right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bookings-table-body">
+                                <!-- JS inserts rows here -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div class="hidden" id="table-empty-state" style="text-align: center; padding: 40px;">
+                        <h3 style="font-size: 18px; color: var(--text-primary); margin-bottom: 8px;">No Bookings Found</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 20px;">Upload an excel sheet or click below to load samples.</p>
+                        <button class="btn btn-outline" id="btn-load-sample-bookings">Load Sample Data</button>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="pagination-bar hidden" id="pagination-controls">
+                        <div class="pagination-info" id="totals-entries-info">Showing entries</div>
+                        <div class="page-controls">
+                            <button class="page-btn" id="page-prev-btn" disabled>‹</button>
+                            <div id="page-numbers-list" style="display: flex; gap: 6px;"></div>
+                            <button class="page-btn" id="page-next-btn" disabled>›</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════
+             SECTION: BUYER LIBRARY
+             ════════════════════════════════════════════════ -->
+        <section class="tab-content" id="library-section">
+            <div class="content-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <div class="panel-title-icon" style="background: var(--color-red-bg); color: var(--color-red);">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2m14 0V9a2 2 0 0 0-2-2M5 11V9a2 2 0 0 1 2-2m0 0V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2M7 7h10"/></svg>
+                        </div>
+                        Buyer Library
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-primary" id="btn-add-buyer">+ Add Buyer</button>
+                        <!-- <button class="btn btn-danger" id="btn-reset-library">Reset Defaults</button> -->
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    <div class="toolbar">
+                        <div class="toolbar-left">
+                            <div class="search-wrap">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                                <input type="text" class="input-pill" id="library-search-input" placeholder="Search buyer library...">
+                            </div>
+                        </div>
+                        <div class="toolbar-right">
+                            <button class="btn btn-outline" id="btn-download-buyer-template">Template</button>
+                            <button class="btn btn-outline" id="btn-upload-buyer-excel">Upload Excel</button>
+                            <input type="file" id="buyer-excel-file-input" accept=".xlsx,.xls,.csv" hidden>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table class="playful-table" id="buyer-library-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 80px;">S/N</th>
+                                    <th>buyer short name</th>
+                                    <th>Buyer Full Name</th>
+                                    <th style="text-align: right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="buyer-library-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ═══════════════════════════════════════════════════
+         PLAYFUL MODALS & DIALOGS
+         ═══════════════════════════════════════════════════ -->
+    
+    <!-- Custom Confirmation Modal (Bouncy/Playful) -->
+    <div class="modal-overlay" id="confirm-modal">
+        <div class="modal-card" style="max-width: 420px;">
+            <div class="modal-body confirm-content">
+                <div class="confirm-big-icon warning" id="confirm-icon-node">
+                    <!-- Icon replaced via JS -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                </div>
+                <h2 id="confirm-title-node">Confirm Action</h2>
+                <p id="confirm-message-node">Are you sure you want to proceed?</p>
+            </div>
+            <div class="modal-footer" style="justify-content: center; gap: 16px;">
+                <button type="button" class="btn btn-outline" id="confirm-btn-cancel">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirm-btn-proceed">Proceed</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Add/Edit Form -->
+    <div class="modal-overlay" id="booking-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="booking-modal-title">Add Booking</h3>
+                <button class="modal-close" data-close>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <form id="booking-form">
+                <div class="modal-body">
+                    <input type="hidden" id="booking-form-id">
+                    <div class="form-group">
+                        <label>Booking Number</label>
+                        <input type="text" class="input-pill" id="booking-form-no" required>
+                    </div>
+                    <div class="form-group">
+                        <label>buyer short name</label>
+                        <input type="text" class="input-pill" id="booking-form-short-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Or Select From Library</label>
+                        <select class="input-pill" id="booking-form-buyer-select">
+                            <option value="">-- Choose Buyer --</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" data-close>Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Record</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Buyer Add/Edit Form -->
+    <div class="modal-overlay" id="buyer-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="buyer-modal-title">Add Buyer</h3>
+                <button class="modal-close" data-close>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <form id="buyer-form">
+                <div class="modal-body">
+                    <input type="hidden" id="buyer-form-mode" value="add">
+                    <input type="hidden" id="buyer-form-original-short">
+                    <div class="form-group">
+                        <label>buyer short name </label>
+                        <input type="text" class="input-pill" id="buyer-form-short" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Buyer Full Name</label>
+                        <input type="text" class="input-pill" id="buyer-form-full" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" data-close>Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Buyer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Stack -->
+    <div class="toast-wrap" id="toast-container"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
