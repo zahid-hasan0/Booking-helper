@@ -510,16 +510,47 @@ function downloadBuyerTemplate() {
 
 function exportBookingExcel() {
     if (state.bookings.length === 0) { showToast("Nothing to Export", "No bookings available.", "warning"); return; }
-    const wsData = [["S/N", "Booking No", "Code", "Buyer Name", "Status"]];
+    const headers = ["Booking No", "Customer", "Buyer", "Item", "Date", "Status", "Check Date", "Remarks"];
+    // Demo/test values — only applied to the first 2 rows for now.
+    const today = new Date();
+    const todayFmt = String(today.getDate()).padStart(2, "0") + "/" +
+                      String(today.getMonth() + 1).padStart(2, "0") + "/" +
+                      today.getFullYear();
+    const DEMO_ROWS = [
+        { customer: "GMS Composite", date: todayFmt, status: "Verified", checkDate: todayFmt },
+        { customer: "GMS Textile", date: todayFmt, status: "Verified", checkDate: todayFmt }
+    ];
+    const wsData = [headers];
     state.bookings.forEach((b, i) => {
-        wsData.push([i + 1, b.bookingNo, b.shortName, b.fullName || "", b.status]);
+        const demo = DEMO_ROWS[i];
+        if (demo) {
+            wsData.push([b.bookingNo, demo.customer, b.fullName || "", "", demo.date, demo.status, demo.checkDate, ""]);
+        } else {
+            wsData.push([b.bookingNo, "", b.fullName || "", "", "", "", "", ""]);
+        }
     });
     const ws = XLSX.utils.aoa_to_sheet(wsData);
-    ws["!cols"] = [{ wch: 6 }, { wch: 20 }, { wch: 10 }, { wch: 25 }, { wch: 12 }];
+    ws["!cols"] = [
+        { wch: 14 }, { wch: 18 }, { wch: 28 }, { wch: 16 },
+        { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 22 }
+    ];
+
+    // Style header row (yellow fill + bold).
+    const headerRange = XLSX.utils.decode_range(ws["!ref"]);
+    for (let c = headerRange.s.c; c <= headerRange.e.c; c++) {
+        const cellRef = XLSX.utils.encode_cell({ r: 0, c });
+        if (ws[cellRef]) {
+            ws[cellRef].s = {
+                fill: { patternType: "solid", fgColor: { rgb: "FFFF00" }, bgColor: { rgb: "FFFF00" } },
+                font: { bold: true }
+            };
+        }
+    }
+
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Bookings");
-    const stamp = new Date().toISOString().slice(0, 10);
-    XLSX.writeFile(wb, `bookings_export_${stamp}.xlsx`);
+    const monthName = today.toLocaleString("en-US", { month: "long" });
+    XLSX.writeFile(wb, `${monthName} Booking Export.xlsx`, { cellStyles: true });
     showToast("Exported", `Exported ${state.bookings.length} rows.`, "success");
 }
 
